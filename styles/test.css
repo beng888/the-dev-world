@@ -1,0 +1,40 @@
+img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+p {
+  line-height: 100%;
+}
+
+body,
+html {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.curved span {
+  position: absolute;
+  transform-origin: bottom;
+  padding-bottom: 90%;
+  border: red solid 1px;
+}
+
+.curved span:first-child {
+  transform: rotate(-4deg);
+}
+
+.curved span:nth-child(2) {
+  transform: rotate(-2deg);
+}
+
+.curved span:nth-child(3) {
+  transform: rotate(0deg);
+}
+
+.curved span:nth-child(4) {
+  transform: rotate(2deg);
+}
+
+.curved span:last-child {
+  transform: rotate(4deg);
+}
