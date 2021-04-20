@@ -4,98 +4,121 @@ export const SmoothScrollContext = createContext({
   scroll: null,
 });
 
-export const SmoothScrollProvider = ({ children, options }) => {
+export const SmoothScrollProvider = ({ children, direction }) => {
   const [scroll, setScroll] = useState(null);
-
-  let ele;
-  let downX, moveX, newX, scrollX;
-
-  const scrollHandler = function () {
-    scroll.scroll.instance.delta.x =
-      scroll.scroll.instance.scroll.x <= 0
-        ? 0
-        : scroll.scroll.instance.scroll.x >= scroll.scroll.instance.limit.x
-        ? scroll.scroll.instance.limit.x
-        : scroll.scroll.instance.delta.x;
-
-    // document.querySelector("#position").innerHTML =
-    //   scroll.scroll.instance.delta.x;
-  };
-
-  const mouseDownHandler = function (e) {
-    downX = e.clientX;
-    scrollX = scroll.scroll.instance.scroll.x;
-
-    console.log(scroll.scroll);
-
-    ele.style.cursor = "grab";
-    ele.style.userSelect = "none";
-
-    scroll.scrollTo(scroll.scroll.instance.scroll.x);
-
-    document.addEventListener("mousemove", mouseMoveHandler);
-    document.addEventListener("mouseup", mouseUpHandler);
-  };
-
-  const mouseMoveHandler = function (e) {
-    ele.style.cursor = "grabbing";
-
-    moveX = downX - e.clientX;
-
-    newX =
-      scroll.scroll.instance.scroll.x + moveX <= 0
-        ? 0
-        : scrollX + moveX >= scroll.scroll.instance.limit.x
-        ? scroll.scroll.instance.limit.x
-        : scrollX + moveX;
-
-    scroll.scroll.instance.delta.x = Number(newX).toFixed(2);
-    scroll.scrollTo(newX);
-
-    // const position = `${scroll.scroll.instance.delta.x} <br/>  ${moveX}<br/>  ${scroll.scroll.instance.scroll.x} <br/> ${e.clientX}`;
-    // document.querySelector("#position").innerHTML = position;
-  };
-
-  const mouseUpHandler = function () {
-    ele.style.removeProperty("user-select");
-    ele.style.cursor = "grab";
-    // scroll.scrollTo(newX);
-
-    document.removeEventListener("mousemove", mouseMoveHandler);
-    document.removeEventListener("mouseup", mouseUpHandler);
-    // document.querySelector("#position").innerHTML = "mouse UP!!";
-  };
+  const [horizontal, setHorizontal] = useState(null);
 
   useEffect(() => {
+    let ele;
+    console.log(horizontal);
+
     if (!scroll) {
       ele = document.querySelector("[data-scroll-container]");
 
       (async () => {
         try {
           const LocomotiveScroll = (await import("locomotive-scroll")).default;
+          const setLocoScroll = () => {
+            if (window.innerWidth >= 768 && direction === "horizontal") {
+              setHorizontal(true);
+            } else setHorizontal(false);
 
-          setScroll(
-            new LocomotiveScroll({
-              el: ele ?? undefined,
-              ...options,
-            })
-          );
+            setScroll(
+              new LocomotiveScroll({
+                el: ele ?? undefined,
+                smooth: true,
+                direction: direction,
+                initPosition: { x: 0, y: 0 },
+                tablet: {
+                  smooth: true,
+                  direction: direction,
+                  breakpoint: 770,
+                },
+                smartphone: { smooth: true },
+              })
+            );
+          };
+          setLocoScroll();
+
+          window.addEventListener("resize", (e) => {
+            const width = window.innerWidth;
+            setTimeout(() => {
+              if (horizontal && width >= 768) return;
+              if (!horizontal && width < 768) return;
+              if (horizontal && width < 768) {
+                scroll && scroll.destroy();
+                setHorizontal(false);
+                return setLocoScroll();
+              }
+              if (!horizontal && width >= 768) {
+                scroll && scroll.destroy();
+                setHorizontal(true);
+                return setLocoScroll();
+              }
+            }, 250);
+          });
         } catch (error) {
           throw Error(`[SmoothScrollProvider]: ${error}`);
         }
       })();
-    } else if (window.innerWidth >= 768) {
-      ele = document.querySelector("[data-scroll-container]");
-
-      ele.addEventListener("mousedown", mouseDownHandler);
-      ele.addEventListener("scroll", scrollHandler);
     }
 
+    ele = document.querySelector("[data-scroll-container]");
+    ele.addEventListener("scroll", scrollHandler);
+    ele.addEventListener("mousedown", mouseDownHandler);
+    scroll && scroll.scrollTo(0, { duration: 0 });
+
     return () => {
+      window.scrollTo(0, 0);
+      scroll && scroll.scrollTo(0, { duration: 0 });
       scroll && scroll.destroy();
+      ele.addEventListener("scroll", scrollHandler);
       ele.removeEventListener("mousedown", mouseDownHandler);
     };
-  }, [scroll]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [scroll]);
+
+  const scrollHandler = function () {
+    const delta = scroll.scroll.instance.delta;
+    horizontal ? (delta.x = delta.x) : (delta.y = delta.y);
+  };
+
+  const mouseDownHandler = function (e) {
+    const limit = scroll.scroll.instance.limit,
+      scroller = scroll.scroll.instance.scroll,
+      position = horizontal ? e.clientX : e.clientY,
+      delta = scroll.scroll.instance.delta,
+      scrollXY = horizontal ? scroller.x : scroller.y,
+      limitXY = horizontal ? limit.x : limit.y,
+      selected = e.target;
+
+    selected.style.userSelect = "none";
+
+    document.addEventListener("mousemove", mouseMoveHandler);
+    document.addEventListener("mouseup", mouseUpHandler);
+
+    function mouseMoveHandler(e) {
+      const difference = horizontal ? e.clientX : e.clientY;
+      const move = position - difference;
+
+      const newPosition =
+        scrollXY + move <= 0
+          ? 0
+          : scrollXY + move >= limitXY
+          ? limitXY
+          : scrollXY + move;
+
+      horizontal
+        ? (delta.x = Number(newPosition).toFixed(2))
+        : (delta.y = Number(newPosition).toFixed(2));
+      scroll.scrollTo(newPosition);
+    }
+
+    function mouseUpHandler() {
+      selected.style.removeProperty("user-select");
+      document.removeEventListener("mousemove", mouseMoveHandler);
+      document.removeEventListener("mouseup", mouseUpHandler);
+    }
+  };
 
   return (
     <SmoothScrollContext.Provider value={{ scroll }}>

@@ -13,8 +13,22 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "baseUrl": "./",
+    "paths": {
+      "@pages/*": ["src/pages/*"],
+      "@contexts/*": ["src/contexts/*"]
+    }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "pages/index.js",
+    "src/common/hooks/useOnScreen.js",
+    "src/pages/home/index.js",
+    "src/pages/insights/index.js",
+    "src/pages/media/index.js"
+  ],
   "exclude": ["node_modules"]
 }

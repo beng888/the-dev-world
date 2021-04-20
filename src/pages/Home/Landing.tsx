@@ -1,124 +1,123 @@
-import React from "react";
-import tw from "twin.macro";
-import { BsArrowRight } from "react-icons/bs";
+import useOnScreen from "src/common/hooks/useOnScreen";
+import { useStyleContext } from "@contexts/StyleContext";
+import { useEffect, useRef } from "react";
+import { RouterLink } from "Layout/components/PageTransition";
 
-const items = [
-  {
-    img: "./images/home1-1.jpg",
-    date: "18th Feb",
-    author: "Megan Doyle",
-    title: "Building A Decentralized Future with dApps",
-    tags:
-      "Tags: DLT, Blockchain, Smart Business, Models, Disruptive Industries",
-  },
-  {
-    img: "./images/home1-1.jpg",
-    date: "18th Feb",
-    author: "Megan Doyle",
-    title: "Building A Decentralized Future with dApps",
-    tags:
-      "Tags: DLT, Blockchain, Smart Business, Models, Disruptive Industries",
-  },
-  {
-    img: "./images/home1-1.jpg",
-    date: "18th Feb",
-    author: "Megan Doyle",
-    title: "Building A Decentralized Future with dApps",
-    tags:
-      "Tags: DLT, Blockchain, Smart Business, Models, Disruptive Industries",
-  },
-];
-
-interface Articles {
-  title: String;
-  tags: Array<String>;
+interface article {
+  title: string;
+  tags: Array<string>;
   social_image: string;
-  created_at: String;
-  url: String;
-  user: { name: String };
+  created_at: string;
+  positive_reactions_count: number;
+  url: string;
+  user: { name: string };
 }
 
-export default function Landing({ collection }: { collection: Articles[] }) {
-  console.log(collection);
+interface Props {
+  articles: article[];
+}
+
+const Landing: React.FC<Props> = ({ articles }) => {
+  const ref = useRef(null);
+  const onScreen = useOnScreen(ref);
+  const { style, setStyle } = useStyleContext();
+
+  useEffect(() => {
+    if (onScreen) setStyle({ ...style, color: null });
+  }, [onScreen]);
   return (
     <div
-      tw="min-width[max-content] overflow-x-hidden relative 
-        after:(content['asdasdasd'] absolute inset-0 z-30)"
+      ref={ref}
+      className="relative flex flex-col overflow-x-hidden md:min-w-max"
     >
-      <img
-        data-scroll
-        data-scroll-speed="-2"
-        src="./images/home1.jpg"
-        alt="home1.jpg"
-        tw="float-left min-width[max-content] max-w-full h-screen  w-screen object-cover -z-10"
-      />
-
-      {/* <picture tw="inset-0 absolute -z-10" data-scroll data-scroll-speed="-2">
-        <source
-          srcSet="./smaller-images/home1.jpg"
-          media="(max-width: 580px)"
-        />
+      <div className="relative overflow-x-hidden md:static md:overflow-visible">
         <img
+          data-scroll
+          data-scroll-speed="-2"
           src="./images/home1.jpg"
           alt="home1.jpg"
-          tw="h-full w-full object-cover"
+          className="float-left object-cover w-screen max-w-full pointer-events-none h-fit md:h-screen md:min-w-max -z-10"
         />
-      </picture> */}
 
-      <div
-        tw="h-1/2 text-white absolute top-1/4 
-        left[20%] aspect-ratio[1/1] font-size[12vh] 
-        text-shadow[2px 2px 5px rgba(0,0,0,0.5)] background-image[url(./images/home1-1.jpg)]"
-      >
-        <p tw="relative transform[translate(-20%,-55%)]">The world</p>
-        <p tw="text-right relative transform[translate(20%,50%)]">we create.</p>
+        <div
+          className="absolute inset-0 w-3/5 m-auto text-white transform h-60vw md:h-50vh text-12vw md:translate-x-full md:w-50vh md:text-12vh md:inset-auto md:top-1/4"
+          style={{
+            textShadow: "2px 2px 5px rgba(0,0,0,0.5)",
+            backgroundImage: "url(./images/home1-1.jpg)",
+          }}
+        >
+          <p className="relative transform -translate-y-1/2 -translate-x-1/4">
+            The <br /> world
+          </p>
+          <p className="relative text-right transform translate-y-1/2 translate-x-1/4">
+            we <br /> create.
+          </p>
+        </div>
       </div>
 
-      <div tw="h-full bg-white absolute p-6 flex flex-col right[3%] width[28%]">
-        <div tw="flex justify-between">
-          <p tw="text-3xl">Top Stories</p>
-          <u>View all stories</u>
+      <div className="relative flex flex-col bg-white h-150vw md:absolute p-4vw pt-20vw md:h-full md:p-4vh md:pt-4vh md:right-12 md:w-60vh">
+        <div className="flex justify-between">
+          <p className="text-5vw md:text-4vh">Top Stories </p>
+          <RouterLink to="/insights">
+            {" "}
+            <u className="text-4vw md:text-2vh">View all stories</u>
+          </RouterLink>
         </div>
-
-        {collection
-          ?.sort(() => Math.random() - Math.random())
-          .slice(0, 4)
-          .map((item, i) => (
-            <div
-              key={i}
-              tw="py-4 gap-5 border-b border-gray-400 grid grid-template-columns[1fr 2fr]"
-            >
-              <img
-                src={item.social_image}
-                alt={item.social_image}
-                tw="w-full my-auto"
-              />
-              <div tw="text-xs flex flex-col gap-3">
-                <p tw="flex justify-between">
-                  <span>{item.created_at.split("T")[0]}</span>
-                  <span>{item.user.name}</span>
-                </p>
-                <p tw="text-lg leading-5 ">{item.title}</p>
-                <p>Topics: {item.tags}</p>
-              </div>
-            </div>
-          ))}
-        <div tw="my-auto flex justify-between items-center">
-          <p>
+        <div className="flex flex-col divide-y divide-gray-600 md:h-full justify-evenly">
+          {/* .sort(() => Math.random() - Math.random()) */}
+          {articles
+            ?.sort(
+              (a, b) => b.positive_reactions_count - a.positive_reactions_count
+            )
+            .slice(0, 4)
+            .map((item, i) => {
+              let currentDate = new Date(item.created_at);
+              const fd = currentDate.toDateString();
+              return (
+                <div key={i} className="relative flex py-3vw gap-2vh md:py-2vh">
+                  <img
+                    src={item.social_image}
+                    alt={item.social_image}
+                    className="w-1/2 my-auto pointer-events-none"
+                  />
+                  <div className="flex flex-col justify-around w-1/2">
+                    <p className="flex justify-between text-2.5vw md:text-1.5vh gap-4">
+                      <span className="whitespace-nowrap">
+                        {fd.split(" ").slice(1, 3).join("-")}
+                      </span>
+                      <span>{item.user.name}</span>
+                    </p>
+                    <p className="text-3vw md:text-2vh line-clamp-2">
+                      {item.title}
+                    </p>
+                    <p className="text-2.5vw md:text-1.5vh">
+                      Topics: {item.tags}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+        <div className="flex items-center justify-between mt-auto h-fit">
+          <p className="hidden md:block text-2vh">
             Scroll or drag <br /> to discover
           </p>
-          <div tw="h-32 w-32">
-            <svg viewBox="0 0 100 100" tw="bg-black rounded-full">
-              <path
-                stroke="gray"
-                strokeWidth="1"
-                fill="none"
-                d="M15 50 H85 L50 30 L85 50 L50 70"
-              />
-            </svg>
-          </div>
+          <div className="md:transform md:translate-x-1/2 ">
+            <div className="absolute top-0 right-0 w-1/5 transform scale-90 rotate-90 -translate-y-1/2 md:w-15vh -translate-x-1/3 md:transform-none md:relative md:inset-auto">
+              <svg viewBox="0 0 100 100" className="bg-black rounded-full ">
+                <path
+                  stroke="white"
+                  strokeWidth="1"
+                  fill="none"
+                  d="M15 50 H85 L60 30 L85 50 L60 70"
+                />
+              </svg>
+            </div>
+          </div>{" "}
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Landing;

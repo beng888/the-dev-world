@@ -1,10 +1,10 @@
 import { SmoothScrollProvider } from "../src/contexts/SmoothScroll.context";
-import About from "../src/pages/About";
+import Insights from "../src/pages/insights";
 
-export default function AboutPage() {
+export default function InsightsPage() {
   return (
     <SmoothScrollProvider direction="vertical">
-      <About />
+      <Insights />
     </SmoothScrollProvider>
   );
 }

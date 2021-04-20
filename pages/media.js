@@ -1,10 +1,10 @@
 import { SmoothScrollProvider } from "../src/contexts/SmoothScroll.context";
-import About from "../src/pages/About";
+import Media from "../src/pages/media";
 
-export default function AboutPage() {
+export default function MediaPage() {
   return (
     <SmoothScrollProvider direction="vertical">
-      <About />
+      <Media />
     </SmoothScrollProvider>
   );
 }

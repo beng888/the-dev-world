@@ -12,12 +12,34 @@ textarea {
   @apply placeholder-white;
 }
 
-::-webkit-scrollbar {
-  display: none;
-}
-
 @layer base {
   div {
     @apply bg-center bg-cover;
   }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.arrow-rounded-border {
+  @apply duration-300 border-2 border-gray-400 rounded-full opacity-20 hover:opacity-100;
+}
+.btn-medium {
+  @apply px-6 py-3 md:px-5vh md:py-2vh text-3vw md:text-2vh;
+}
+
+html.has-scroll-smooth {
+  overflow: hidden;
+}
+
+html.has-scroll-dragging {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.has-scroll-smooth body {
+  overflow: hidden;
 }

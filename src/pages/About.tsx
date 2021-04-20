@@ -16,7 +16,7 @@ export default function About() {
   };
 
   return (
-    <div data-scroll-section>
+    <div data-scroll-section className="z-50 bg-white">
       <Link href="/">
         <a>Home page</a>
       </Link>
