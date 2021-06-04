@@ -1,4 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useGlobalContext } from "@contexts/GlobalContext";
 
 export const SmoothScrollContext = createContext({
   scroll: null,
@@ -7,79 +9,159 @@ export const SmoothScrollContext = createContext({
 export const SmoothScrollProvider = ({ children, direction }) => {
   const [scroll, setScroll] = useState(null);
   const [horizontal, setHorizontal] = useState(null);
+  const { style, route, nav, loco, globalKey } = useGlobalContext();
 
-  useEffect(() => {
-    let ele;
-    console.log(horizontal);
+  const [styleValue, setstyleValue] = style;
+  const [routeValue, setrouteValue] = route;
+  const [navValue, setnavValue] = nav;
+  const [locoValue, setlocoValue] = loco;
+  const [globalKeyValue, setGlobalKeyValue] = globalKey;
 
-    if (!scroll) {
-      ele = document.querySelector("[data-scroll-container]");
+  const router = useRouter();
 
-      (async () => {
-        try {
-          const LocomotiveScroll = (await import("locomotive-scroll")).default;
-          const setLocoScroll = () => {
-            if (window.innerWidth >= 768 && direction === "horizontal") {
-              setHorizontal(true);
-            } else setHorizontal(false);
+  let prevScroll = 0,
+    ele;
 
-            setScroll(
-              new LocomotiveScroll({
-                el: ele ?? undefined,
-                smooth: true,
-                direction: direction,
-                initPosition: { x: 0, y: 0 },
-                tablet: {
-                  smooth: true,
-                  direction: direction,
-                  breakpoint: 770,
-                },
-                smartphone: { smooth: true },
-              })
-            );
-          };
-          setLocoScroll();
-
-          window.addEventListener("resize", (e) => {
-            const width = window.innerWidth;
-            setTimeout(() => {
-              if (horizontal && width >= 768) return;
-              if (!horizontal && width < 768) return;
-              if (horizontal && width < 768) {
-                scroll && scroll.destroy();
-                setHorizontal(false);
-                return setLocoScroll();
-              }
-              if (!horizontal && width >= 768) {
-                scroll && scroll.destroy();
-                setHorizontal(true);
-                return setLocoScroll();
-              }
-            }, 250);
-          });
-        } catch (error) {
-          throw Error(`[SmoothScrollProvider]: ${error}`);
-        }
-      })();
+  const responsive = () => {
+    if (window.innerWidth < 768) {
+      setstyleValue({
+        ...styleValue,
+        mobile: true,
+      });
+    } else {
+      setstyleValue({
+        ...styleValue,
+        mobile: false,
+      });
     }
-
-    ele = document.querySelector("[data-scroll-container]");
-    ele.addEventListener("scroll", scrollHandler);
-    ele.addEventListener("mousedown", mouseDownHandler);
-    scroll && scroll.scrollTo(0, { duration: 0 });
-
-    return () => {
-      window.scrollTo(0, 0);
-      scroll && scroll.scrollTo(0, { duration: 0 });
-      scroll && scroll.destroy();
-      ele.addEventListener("scroll", scrollHandler);
-      ele.removeEventListener("mousedown", mouseDownHandler);
-    };
-  }, [scroll]);
+  };
 
   const scrollHandler = function () {
-    const delta = scroll.scroll.instance.delta;
-    horizontal ? (delta.x = delta.x) : (delta.y = delta.y);
+    if (!horizontal) {
+      const currentScroll = scroll?.scroll.instance.scroll.y;
+      if (scroll?.scroll.instance.delta.y >= scroll?.scroll.instance.limit.y) {
+        let deltaY = scroll?.scroll.instance.delta.y;
+        deltaY = scroll?.scroll.instance.limit.y;
+      }
+      setstyleValue({ ...styleValue, showNav: prevScroll > currentScroll });
+
+      setnavValue({
+        ...navValue,
+        navScrollDistance: scroll?.scroll.instance.limit.y,
+        navScrollTraveled: scroll?.scroll.instance.delta.y,
+      });
+      console.log(horizontal);
+      prevScroll = currentScroll;
+    } else {
+      setnavValue({
+        ...navValue,
+        navScrollDistance: scroll?.scroll.instance.limit.x,
+
+        navScrollTraveled: scroll?.scroll.instance.delta.x,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (routeValue.changingRoute === true) {
+      scroll && scroll.scrollTo(0, { duration: 0, disableLerp: true });
+      setTimeout(() => {
+        router.push(router.asPath);
+      }, 50);
+    }
+  }, [routeValue.changingRoute]);
+
+  useEffect(() => {
+    responsive();
+    scrollHandler();
+    // if (router.pathname !== "/")
+    //   setlocoValue({ ...locoValue, resetLocomotive: true });
+  }, [router.pathname]);
+
+  const setLocoScroll = async () => {
+    ele = document.querySelector("[data-scroll-container]");
+    const LocomotiveScroll = (await import("locomotive-scroll")).default;
+
+    if (window.innerWidth >= 768 && direction === "horizontal") {
+      setHorizontal(true);
+    } else setHorizontal(false);
+
+    setScroll(
+      new LocomotiveScroll({
+        el: ele ?? undefined,
+        smooth: true,
+        direction: direction,
+        initPosition: { x: 0, y: 0 },
+        tablet: {
+          smooth: true,
+          direction: direction,
+          breakpoint: 770,
+        },
+        smartphone: { smooth: true },
+      })
+    );
+  };
+
+  useEffect(() => {
+    responsive();
+    if (!scroll) {
+      // (async () => {
+      try {
+        setLocoScroll();
+      } catch (error) {
+        throw Error(`[SmoothScrollProvider]: ${error}`);
+      }
+      // })();
+    }
+
+    if (locoValue.resetLocomotive) {
+      scroll && scroll.destroy();
+      setlocoValue({ ...locoValue, resetLocomotive: false });
+      setLocoScroll();
+    }
+
+    window.addEventListener("resize", resizeHandler);
+    ele = document.querySelector("[data-scroll-container]");
+    ele.addEventListener("wheel", scrollHandler);
+    ele.addEventListener("mousedown", mouseDownHandler);
+    // setlocoValue({ ...locoValue, resetLocomotive: false });
+
+    return () => {
+      scroll && scroll.destroy();
+      ele.removeEventListener("wheel", scrollHandler);
+      ele.removeEventListener("mousedown", mouseDownHandler);
+      window.removeEventListener("resize", resizeHandler);
+    };
+  }, [scroll, locoValue.resetLocomotive]);
+
+  // useEffect(() => {
+  //   // scroll && scroll.start();
+  //   // scroll && console.log(scroll.scroll.instance);
+  //   if (locoValue.resetLocomotive) {
+  //     scroll && scroll.destroy();
+  //     setlocoValue({ ...locoValue, resetLocomotive: false });
+  //     setLocoScroll();
+  //   }
+  // }, [locoValue.resetLocomotive]);
+
+  const resizeHandler = () => {
+    const width = window.innerWidth;
+    setTimeout(() => {
+      if (horizontal && width >= 768) return;
+      if (!horizontal && width < 768) return;
+      if (horizontal && width < 768) {
+        scroll && scroll.destroy();
+        // setHorizontal(false);
+        // responsive();
+        // return setLocoScroll();
+      }
+      if (!horizontal && width >= 768) {
+        scroll && scroll.destroy();
+        setHorizontal(true);
+        responsive();
+        return setLocoScroll();
+      }
+    }, 250);
   };
 
   const mouseDownHandler = function (e) {
@@ -97,6 +179,7 @@ export const SmoothScrollProvider = ({ children, direction }) => {
     document.addEventListener("mouseup", mouseUpHandler);
 
     function mouseMoveHandler(e) {
+      scrollHandler();
       const difference = horizontal ? e.clientX : e.clientY;
       const move = position - difference;
 

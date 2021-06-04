@@ -1,27 +1,45 @@
 import Nav from "./components/Nav";
 import { useRouter } from "next/router";
 import { Overlay } from "./components/PageTransition";
-import { useStyleContext } from "@contexts/StyleContext";
-import { useEffect, useRef } from "react";
+import { useGlobalContext } from "@contexts/GlobalContext";
+import { useEffect, useRef, useState } from "react";
 
 const TransitionOutWrapper = ({ children }) => {
-  const { style, setStyle } = useStyleContext();
+  const { route } = useGlobalContext();
+  const [routeValue, setrouteValue] = route;
   const router = useRouter();
 
   const containerRef = useRef(null);
   const coverRef = useRef(null);
 
+  const [overlayTransition, setOverlayTransition] = useState(false);
+
   useEffect(() => {
     const container = containerRef.current.style;
     const cover = coverRef.current.style;
+    cover.pointerEvents = "none";
 
-    if (router.pathname === "/") {
+    // if (router.pathname === "/") {
+    //   setTimeout(() => {
+    //     setrouteValue({ ...route, isPageTransitioning: false });
+    //   }, 1);
+    // }
+
+    if (routeValue.newRoute) {
+      container.transitionDuration = "0s";
+      container.transform = "translate(0)";
+      cover.transitionDuration = "0s";
+      cover.opacity = "0";
+
       setTimeout(() => {
-        setStyle({ ...style, isPageTransitioning: false });
+        setrouteValue({
+          ...routeValue,
+          isPageTransitioning: false,
+          newRoute: null,
+        });
+        setOverlayTransition(false);
       }, 1);
-    }
-
-    if (!style.isPageTransitioning) {
+    } else {
       container.opacity = "0";
       container.transitionDuration = "0s";
       container.transform = "translateY(100vh)";
@@ -33,27 +51,21 @@ const TransitionOutWrapper = ({ children }) => {
         container.transitionDuration = "1s";
         container.transform = "translate(0)";
       }, 1);
-    } else {
-      container.transitionDuration = "0s";
-      container.transform = "translate(0)";
-      cover.transitionDuration = "0s";
-      cover.opacity = "0";
-
-      setTimeout(() => {
-        setStyle({ ...style, isPageTransitioning: false });
-      }, 1);
     }
   }, [router.pathname]);
 
   useEffect(() => {
+    if (routeValue.newRoute) setOverlayTransition(true);
+    console.log(overlayTransition);
+
     const container = containerRef.current.style;
     const cover = coverRef.current.style;
 
-    if (style.isPageTransitioning) {
+    if (routeValue.isPageTransitioning) {
       cover.transitionDuration = "1.2s";
       container.transitionDuration = "1.5s";
 
-      if (style.newRoute === "/") {
+      if (routeValue.newRoute === "/") {
         container.transform = "translateX(-5%)";
       } else {
         container.transform = "translateY(-5%)";
@@ -64,9 +76,8 @@ const TransitionOutWrapper = ({ children }) => {
     } else {
       container.transitionDuration = "0s";
       container.transform = "translate(0)";
-      cover.pointerEvents = "none";
     }
-  }, [style.isPageTransitioning]);
+  }, [routeValue.isPageTransitioning]);
 
   return (
     <div ref={containerRef}>
@@ -79,12 +90,16 @@ const TransitionOutWrapper = ({ children }) => {
   );
 };
 
-const Layout: React.FC = ({ children }) => {
+const Layout = ({ children }) => {
+  const { route } = useGlobalContext();
+  const [routeValue, setrouteValue] = route;
+
   return (
     <div>
       <Nav />
+
+      <Overlay s={routeValue.isPageTransitioning} />
       <TransitionOutWrapper>{children}</TransitionOutWrapper>
-      <Overlay />
     </div>
   );
 };

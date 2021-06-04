@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Button from "src/common/components/Button";
 import Carousel from "src/common/components/Carousel";
 import useOnScreen from "src/common/hooks/useOnScreen";
-import { useStyleContext } from "@contexts/StyleContext";
+import { useGlobalContext } from "@contexts/GlobalContext";
 
 export const VideoSlide = ({ video, index, props }) => {
   const { slide, dragDiff, isDragging, videos } = props;
@@ -69,10 +69,12 @@ const Videos: React.FC<Props> = ({ videos }) => {
 
   const ref = useRef(null);
   const onScreen = useOnScreen(ref);
-  const { style, setStyle } = useStyleContext();
+  const { style } = useGlobalContext();
+
+  const [styleValue, setstyleValue] = style;
 
   useEffect(() => {
-    if (onScreen) setStyle({ ...style, color: "bg-green-400" });
+    if (onScreen) setstyleValue({ ...styleValue, color: "bg-green-400" });
   }, [onScreen]);
 
   const props = { slide, dragDiff, isDragging, videos };

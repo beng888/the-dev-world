@@ -1,30 +1,33 @@
 import { useRouter } from "next/router";
-import { useStyleContext } from "@contexts/StyleContext";
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useGlobalContext } from "@contexts/GlobalContext";
+import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 export const RouterLink: React.FC<{ to: string }> = ({ children, to }) => {
-  const { style, setStyle } = useStyleContext();
+  const { route } = useGlobalContext();
+  const [routeValue, setrouteValue] = route;
   const router = useRouter();
 
   const handleRouting = () => {
-    setStyle({ ...style, isPageTransitioning: true, newRoute: to });
+    setrouteValue({
+      ...routeValue,
+      isPageTransitioning: true,
+      newRoute: to,
+      changingRoute: false,
+    });
+
     router.asPath = to;
   };
 
-  return (
-    // <Link href={`/?${to}=${to}`} as={`/${to}`}>
-    <a onClick={handleRouting}>{children}</a>
-    // </Link>
-  );
+  return <a onClick={handleRouting}>{children}</a>;
 };
 
-export const Overlay: React.FC = () => {
-  const { style, setStyle } = useStyleContext();
+export const Overlay: React.FC<{ s: any }> = React.memo(({ s }) => {
+  const { route } = useGlobalContext();
+  const [routeValue, setrouteValue] = route;
   const OverlayRef = useRef(null);
   const router = useRouter();
-  const newRoute = style.newRoute;
+  const newRoute = routeValue.newRoute;
   const [DynamicComponent, setDynamicComponent] = useState(null);
 
   const dynamicComponents = {
@@ -35,32 +38,20 @@ export const Overlay: React.FC = () => {
   };
 
   const changeRoute = () => {
-    if (router.pathname !== router.asPath) {
-      router.push(router.asPath);
-    }
+    setrouteValue({ ...routeValue, changingRoute: true });
   };
 
   useEffect(() => {
-    console.log(router);
     OverlayRef.current.style.opacity = "0";
 
     if (router.pathname === router.asPath) {
       OverlayRef.current.style.transitionDuration = "0s";
-      // OverlayRef.current.style.transform = `${
-      //   router.pathname === router.asPath
-      //     ? "translateY(100vh)"
-      //     : "translateX(100vw)"
-      // }`;
 
-      setStyle({ ...style, newRoute: null });
       setDynamicComponent(null);
     }
 
-    if (newRoute) {
-      OverlayRef.current.style.opacity = "100";
-      setDynamicComponent(
-        dynamicComponents[newRoute.substring(1)] || dynamicComponents.default
-      );
+    if (newRoute && !routeValue.changingRoute) {
+      OverlayRef.current.style.opacity = "1";
 
       if (newRoute === "/") {
         OverlayRef.current.style.transform = "translateX(100vw)";
@@ -68,10 +59,13 @@ export const Overlay: React.FC = () => {
         OverlayRef.current.style.transform = "translateY(100vh)";
       }
 
+      setDynamicComponent(
+        dynamicComponents[newRoute.substring(1)] || dynamicComponents.default
+      );
+
       setTimeout(() => {
         OverlayRef.current.style.transitionDuration = "1s";
         OverlayRef.current.style.transform = "translate(0)";
-        setStyle({ ...style, newRoute: null });
       }, 1);
     }
 
@@ -87,8 +81,7 @@ export const Overlay: React.FC = () => {
       ref={OverlayRef}
       className={`fixed inset-0 z-40 ease-in-out transform pointer-events-none opacity-0`}
     >
-      {/* <p className="text-yellow-300 text-8vw">DYNAMIC OVERLAY</p> */}
       {DynamicComponent ? <DynamicComponent /> : null}
     </div>
   );
-};
+});

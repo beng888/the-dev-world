@@ -1,8 +1,9 @@
 import { useState } from "react";
 import Carousel from "src/common/components/Carousel";
 import useOnScreen from "src/common/hooks/useOnScreen";
-import { useStyleContext } from "@contexts/StyleContext";
+import { useGlobalContext } from "@contexts/GlobalContext";
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/router";
 
 const ProfileSlide = ({ profile }) => {
   return (
@@ -44,16 +45,22 @@ const Profile: React.FC<Props> = ({ profiles }) => {
 
   const ref = useRef(null);
   const onScreen = useOnScreen(ref, "0px -95% 0px 5%");
-  const { style, setStyle } = useStyleContext();
+  const { style } = useGlobalContext();
+
+  const [styleValue, setstyleValue] = style;
+
+  const router = useRouter();
 
   useEffect(() => {
-    if (onScreen) setStyle({ ...style, color: "bg-purple-400" });
+    if (onScreen) setstyleValue({ ...styleValue, color: "bg-purple-400" });
   }, [onScreen]);
 
   return (
     <div
       ref={ref}
-      className="flex flex-col justify-between w-full bg-purple-300 h-200vw md:h-full pt-24vw md:py-8vh px-6vw md:px-14vh md:w-200vh"
+      className={`flex flex-col justify-between w-full bg-purple-300 h-200vw md:h-screen pt-24vw md:py-8vh px-6vw md:px-14vh ${
+        router.pathname === "/" ? "md:w-200vh" : "md:w-full"
+      } `}
     >
       <div className="flex flex-col mt-4 md:flex-row gap-15vh">
         <p
@@ -68,7 +75,7 @@ const Profile: React.FC<Props> = ({ profiles }) => {
           <br />
           DevWorld
         </p>
-        <p className="max-w-prose text-4vw md:text-2vh leading-tight md:leading-2.5vh">
+        <p className="max-w-prose md:w-1/3 text-4vw md:text-2vh leading-tight md:leading-2.5vh">
           "Together, we want to create an empowering space to learn and inspire
           one another with authenticity, creativity, and knowledge. Follow us to
           ignite the change that changes everything."

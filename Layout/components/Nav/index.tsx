@@ -1,51 +1,35 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { SmoothScrollContext } from "@contexts/SmoothScroll.context";
-import { useStyleContext } from "@contexts/StyleContext";
+import { useState } from "react";
+import { useGlobalContext } from "@contexts/GlobalContext";
 import Magnifier from "src/common/icon/Magnifier";
 import Hamburger from "src/common/icon/Hamburger";
 import NavMenu from "./NavMenu";
 import Cross from "src/common/icon/Cross";
+import { useRouter } from "next/router";
 
 const Nav: React.FC = () => {
-  const { scroll } = useContext(SmoothScrollContext);
-  const [distance, setDistance] = useState<number>(0);
-  const [traveled, setTraveled] = useState<number>(0);
-  const { style } = useStyleContext();
-  const [reveal, setReveal] = useState(true);
+  const { style, nav, loco } = useGlobalContext();
+
+  const [styleValue, setstyleValue] = style;
+  const [navValue, setnavValue] = nav;
+  const [locoValue, setlocoValue] = loco;
   const [navOpen, setNavOpen] = useState(false);
-
-  let prevScroll;
-  function travel() {
-    setTraveled(scroll?.scroll.instance.delta.x);
-    const currentScroll = scroll?.scroll.instance.scroll.y;
-    setReveal(prevScroll > currentScroll);
-
-    // console.log({ prevScroll: prevScroll, currentScroll: currentScroll });
-    prevScroll = currentScroll;
-  }
-
-  useEffect(() => {
-    setDistance(scroll?.scroll.instance.limit.x);
-    prevScroll = scroll?.scroll.instance.scroll.y;
-    document.addEventListener("wheel", travel);
-
-    return () => {
-      document.removeEventListener("wheel", travel);
-    };
-  }, [scroll]);
+  const router = useRouter();
 
   return (
     <>
-      <NavMenu navOpen={navOpen} mobile={style.mobile} />
+      <NavMenu navOpen={navOpen} mobile={styleValue.mobile} />
       <div
         className={`glass fixed inset-x-0 md:inset-x-auto md:inset-y-0 z-50 flex flex-row-reverse transform md:flex-col items-center justify-between text-white  ease-out border-white p-5vw md:p-3vh ${
-          style.color && !style.mobile && !navOpen
-            ? `${style.color} duration-1000`
+          styleValue.color &&
+          !styleValue.mobile &&
+          !navOpen &&
+          router.pathname === "/"
+            ? `${styleValue.color} duration-1000`
             : navOpen
             ? "bg-black duration-500"
             : "bg-gray-400 bg-opacity-10"
-        } ${style.mobile ? "border-b" : "border-r"} ${
-          style.mobile && !reveal && !navOpen
+        } ${styleValue.mobile ? "border-b" : "border-r"} ${
+          styleValue.mobile && !styleValue.showNav && !navOpen
             ? "-translate-y-full duration-500"
             : "translate-y-0 duration-700"
         } `}
@@ -54,10 +38,19 @@ const Nav: React.FC = () => {
           WebkitBackdropFilter: "blur(25px)",
         }}
       >
-        <div
-          className="absolute inset-y-0 left-0 h-full duration-300 bg-white w-1vh"
-          style={{ height: `${(traveled / distance) * 100}%` }}
-        />
+        {styleValue.mobile ? (
+          <div />
+        ) : (
+          <div
+            className="absolute inset-y-0 left-0 h-full duration-300 bg-red-500 w-1vh"
+            style={{
+              height: `${
+                (navValue.navScrollTraveled / navValue.navScrollDistance) * 100
+              }%`,
+            }}
+          />
+        )}
+
         <div className="flex items-center h-full w-20vw md:w-4vh md:flex-col gap-6vw md:gap-4vh">
           <Magnifier stroke="white" strokeWidth={7} />
           <div className="relative cursor-pointer w-20vw md:w-4vh">
@@ -81,10 +74,8 @@ const Nav: React.FC = () => {
         </div>
         <div
           className={`origin-center transform text-5vw md:text-2.5vh flex items-center gap-5vw md:gap-2vh ${
-            !style.mobile && "rotate-180 vertical-text"
-          } duration-200 ${
-            style.mobile && navOpen ? "opacity-0" : "opacity-100"
-          }`}
+            !styleValue.mobile && "rotate-180 vertical-text"
+          }  ${styleValue.mobile && navOpen ? "opacity-0" : "opacity-100"}`}
         >
           <p>DEV</p>
           <p className="text-transparent border-r-2 md:border-t-2 md:border-r-0">
@@ -97,7 +88,10 @@ const Nav: React.FC = () => {
                 navOpen ? "opacity-0" : "opacity-100"
               }`}
             >
-              Home
+              Home {styleValue.showNav ? "reveal" : "hidden"}
+            </p>
+            <p className="text-xl text-yellow-300">
+              {`mobile:${styleValue.mobile} locoValue:${locoValue.resetLocomotive} showNav:${styleValue.showNav} navScrollDistance:${navValue.navScrollDistance} navScrollTraveled:${navValue.navScrollTraveled}`}
             </p>
           </div>
         </div>

@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import useOnScreen from "src/common/hooks/useOnScreen";
 import { wheels, wheelsMenu } from "./statics";
-import { useStyleContext } from "@contexts/StyleContext";
+import { useGlobalContext } from "@contexts/GlobalContext";
 
 const WheelSection: React.FC = () => {
   const [selected, setSelected] = useState<number>(4);
-  const { style, setStyle } = useStyleContext();
+  const { style } = useGlobalContext();
+
+  const [styleValue, setstyleValue] = style;
 
   const ref = useRef(null);
   const onScreen = useOnScreen(ref);
 
   useEffect(() => {
-    if (onScreen) setStyle({ ...style, color: "bg-black" });
+    if (onScreen) setstyleValue({ ...styleValue, color: "bg-black" });
   }, [onScreen]);
 
   return (

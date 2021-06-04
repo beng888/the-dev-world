@@ -7,23 +7,23 @@ import Dev from "./Dev";
 import Profile from "./Profile";
 
 import { useQueries } from "react-query";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 
 const Home = () => {
-  const [mobile, setMobile] = useState(false);
+  // const [mobile, setMobile] = useState(false);
 
-  const responsive = () => {
-    window.innerWidth < 768 ? setMobile(true) : setMobile(false);
-  };
+  // const responsive = () => {
+  //   window.innerWidth < 768 ? setMobile(true) : setMobile(false);
+  // };
 
-  useEffect(() => {
-    responsive();
-    window.addEventListener("resize", responsive);
+  // useEffect(() => {
+  //   responsive();
+  //   window.addEventListener("resize", responsive);
 
-    return () => {
-      window.removeEventListener("resize", responsive);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("resize", responsive);
+  //   };
+  // }, []);
 
   // const { isLoading, error, data, isFetching } = useQuery("articles", () =>
   //   fetch("https://dev.to/api/articles").then((res) => res.json())
@@ -78,7 +78,8 @@ const Home = () => {
       id="container"
       className="flex flex-col w-screen md:h-screen md:overflow-y-hidden md:flex-row md:w-max"
     >
-      <Landing articles={results[0].data} /> <WheelSection />
+      <Landing articles={results[0].data} />
+      <WheelSection />
       <Slider />
       <Podcasts podcasts={results[1].data} />
       <Videos videos={results[2].data} />

@@ -1,6 +1,7 @@
 export const categories = [
   {
-    "Language and Frameworks": [
+    title: "Language and Frameworks",
+    tags: [
       "javascript",
       "react",
       "python",
@@ -31,7 +32,8 @@ export const categories = [
     ],
   },
   {
-    "Code Mastery": [
+    title: "Code Mastery",
+    tags: [
       "webdev",
       "productivity",
       "programming",
@@ -52,7 +54,8 @@ export const categories = [
     ],
   },
   {
-    "Code Newbie": [
+    title: "Code Newbie",
+    tags: [
       "beginners",
       "tutorial",
       "codenewbie",
@@ -77,7 +80,8 @@ export const categories = [
     ],
   },
   {
-    "General Discussion": [
+    title: "General Discussion",
+    tags: [
       "android",
       "codepen",
       "ios",
@@ -102,7 +106,8 @@ export const categories = [
     ],
   },
   {
-    "Cloud and Database": [
+    title: "Cloud and Database",
+    tags: [
       "aws",
       "docker",
       "serverless",

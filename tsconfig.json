@@ -17,7 +17,8 @@
     "baseUrl": "./",
     "paths": {
       "@pages/*": ["src/pages/*"],
-      "@contexts/*": ["src/contexts/*"]
+      "@contexts/*": ["src/contexts/*"],
+      "@common/*": ["src/common/*"]
     }
   },
   "include": [
@@ -27,8 +28,9 @@
     "pages/index.js",
     "src/common/hooks/useOnScreen.js",
     "src/pages/home/index.js",
-    "src/pages/insights/index.js",
-    "src/pages/media/index.js"
+    "src/pages/insights/index.ts",
+    "src/pages/media/index.tsx",
+    "Layout/index.js"
   ],
   "exclude": ["node_modules"]
 }

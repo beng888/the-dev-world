@@ -1,16 +1,18 @@
 import Button from "src/common/components/Button";
 import useOnScreen from "src/common/hooks/useOnScreen";
 
-import { useStyleContext } from "@contexts/StyleContext";
+import { useGlobalContext } from "@contexts/GlobalContext";
 import { useEffect, useRef } from "react";
 
 const Slider: React.FC = () => {
   const ref = useRef(null);
   const onScreen = useOnScreen(ref);
-  const { style, setStyle } = useStyleContext();
+  const { style } = useGlobalContext();
+
+  const [styleValue, setstyleValue] = style;
 
   useEffect(() => {
-    if (onScreen) setStyle({ ...style, color: "bg-purple-400" });
+    if (onScreen) setstyleValue({ ...styleValue, color: "bg-purple-400" });
   }, [onScreen]);
 
   return (

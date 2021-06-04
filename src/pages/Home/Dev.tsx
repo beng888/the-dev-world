@@ -3,7 +3,7 @@ const Dev: React.FC<{ dev: any }> = ({ dev }) => {
   const fd: string = currentDate.toDateString();
 
   return (
-    <div className="relative overflow-hidden h-200vw md:h-auto group md:w-80vh">
+    <div className="relative overflow-hidden bg-white h-200vw md:h-auto group md:w-80vh">
       {dev && (
         <>
           <img
@@ -13,7 +13,7 @@ const Dev: React.FC<{ dev: any }> = ({ dev }) => {
           />
           <div className="absolute inset-0 hidden duration-1000 bg-black bg-opacity-0 md:block md:group-hover:bg-opacity-50" />
           <div
-            className="flex flex-col justify-between duration-500 bg-white cursor-pointer gap-10vw md:gap-0 h-fit px-6vw pt-6vw md:inset-0 md:mx-auto md:mt-auto md:w-9/12 md:absolute md:p-4vh md:h-4/6 md:hover:bg-transparent md:hover:text-white"
+            className="flex flex-col justify-between duration-500 cursor-pointer gap-10vw md:gap-0 h-fit px-6vw pt-6vw md:inset-0 md:mx-auto md:mt-auto md:w-9/12 md:absolute md:p-4vh md:h-4/6 md:hover:bg-transparent md:hover:text-white"
             onClick={() => window.open(dev.url)}
           >
             <div>

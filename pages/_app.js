@@ -3,14 +3,14 @@ import "../styles/test.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query-devtools";
 import Layout from "../Layout";
-import { StyleContextWrapper } from "../src/contexts/StyleContext";
+import { GlobalContextWrapper } from "../src/contexts/GlobalContext";
 
 export default function NextApp({ Component, pageProps }) {
   const queryClient = new QueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StyleContextWrapper>
+      <GlobalContextWrapper>
         <Layout>
           <main
             data-scroll-container
@@ -19,7 +19,7 @@ export default function NextApp({ Component, pageProps }) {
             <Component {...pageProps} />
           </main>
         </Layout>
-      </StyleContextWrapper>
+      </GlobalContextWrapper>
       {/* <ReactQueryDevtools /> */}
     </QueryClientProvider>
   );

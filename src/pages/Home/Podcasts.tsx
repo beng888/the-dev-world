@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Carousel from "../../common/components/Carousel";
 import useOnScreen from "src/common/hooks/useOnScreen";
-import { useStyleContext } from "@contexts/StyleContext";
+import { useGlobalContext } from "@contexts/GlobalContext";
 import { useEffect, useRef } from "react";
 
 interface podcast {
@@ -19,10 +19,12 @@ const Podcasts: React.FC<Props> = ({ podcasts }) => {
   const [isDragging, setIsDragging] = useState(false);
   const ref = useRef(null);
   const onScreen = useOnScreen(ref);
-  const { style, setStyle } = useStyleContext();
+  const { style } = useGlobalContext();
+
+  const [styleValue, setstyleValue] = style;
 
   useEffect(() => {
-    if (onScreen) setStyle({ ...style, color: "bg-red-400" });
+    if (onScreen) setstyleValue({ ...styleValue, color: "bg-red-400" });
   }, [onScreen]);
 
   const PodcastSlide = ({ podcast }) => {

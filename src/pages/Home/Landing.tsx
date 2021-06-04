@@ -1,5 +1,5 @@
 import useOnScreen from "src/common/hooks/useOnScreen";
-import { useStyleContext } from "@contexts/StyleContext";
+import { useGlobalContext } from "@contexts/GlobalContext";
 import { useEffect, useRef } from "react";
 import { RouterLink } from "Layout/components/PageTransition";
 
@@ -20,11 +20,14 @@ interface Props {
 const Landing: React.FC<Props> = ({ articles }) => {
   const ref = useRef(null);
   const onScreen = useOnScreen(ref);
-  const { style, setStyle } = useStyleContext();
+  const { style } = useGlobalContext();
+
+  const [styleValue, setstyleValue] = style;
 
   useEffect(() => {
-    if (onScreen) setStyle({ ...style, color: null });
+    if (onScreen) setstyleValue({ ...styleValue, color: null });
   }, [onScreen]);
+
   return (
     <div
       ref={ref}
